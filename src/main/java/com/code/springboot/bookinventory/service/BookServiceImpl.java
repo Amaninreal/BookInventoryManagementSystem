@@ -2,6 +2,7 @@ package com.code.springboot.bookinventory.service;
 
 import com.code.springboot.bookinventory.dao.BookRepository;
 import com.code.springboot.bookinventory.entity.Book;
+import com.code.springboot.bookinventory.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,8 @@ public class BookServiceImpl implements BookService{
     // added implementation for find books by isbn id
     @Override
     public Optional<Book> findByIsbn(int isbn) {
-        return bookRepository.findById(isbn);
+        return Optional.ofNullable(bookRepository.findById(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbn)));
     }
 
 
@@ -48,6 +50,9 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public void deleteByIsbn(int isbn) {
+        if (!bookRepository.existsById(isbn)) {
+            throw new ResourceNotFoundException("Book not found with ISBN: " + isbn);
+        }
         bookRepository.deleteById(isbn);
     }
 

@@ -1,6 +1,7 @@
 package com.code.springboot.bookinventory.rest;
 
 import com.code.springboot.bookinventory.entity.Book;
+import com.code.springboot.bookinventory.exception.ResourceNotFoundException;
 import com.code.springboot.bookinventory.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +44,9 @@ public class BookRestController {
     @GetMapping("/books/{isbnId}")
     public ResponseEntity<Book> getBook(@PathVariable int isbnId) {
         logger.info("Fetching book with ISBN: {}", isbnId);
-        return bookService.findByIsbn(isbnId)
-                .map(book -> {
-                    logger.info("Book found: {}", book);
-                    return ResponseEntity.ok(book);
-                })
-                .orElseGet(() -> {
-                    logger.warn("Book with ISBN {} not found.", isbnId);
-                    return ResponseEntity.notFound().build();
-                });
+        Book book = bookService.findByIsbn(isbnId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbnId));
+        return ResponseEntity.ok(book);
     }
 
     /**
@@ -87,17 +82,13 @@ public class BookRestController {
     @PutMapping("/books/{isbn}")
     public ResponseEntity<Book> updateBookById(@PathVariable int isbn, @RequestBody Book updatedBook) {
         logger.info("Updating book with ISBN: {}", isbn);
-        return bookService.findByIsbn(isbn)
-                .map(existingBook -> {
-                    updateBookDetails(existingBook, updatedBook);
-                    Book savedBook = bookService.save(existingBook);
-                    logger.info("Updated book details: {}", savedBook);
-                    return ResponseEntity.ok(savedBook);
-                })
-                .orElseGet(() -> {
-                    logger.warn("Failed to update - Book with ISBN {} not found.", isbn);
-                    return ResponseEntity.notFound().build();
-                });
+        Book existingBook = bookService.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbn));
+
+        updateBookDetails(existingBook, updatedBook);
+        Book savedBook = bookService.save(existingBook);
+        logger.info("Updated book details: {}", savedBook);
+        return ResponseEntity.ok(savedBook);
     }
 
     /**
@@ -109,18 +100,15 @@ public class BookRestController {
     @PatchMapping("/books/{isbn}")
     public ResponseEntity<Book> updateBookPartially(@PathVariable int isbn, @RequestBody Map<String, Object> updates) {
         logger.info("Partially updating book with ISBN: {}", isbn);
-        return bookService.findByIsbn(isbn)
-                .map(existingBook -> {
-                    updates.forEach((key, value) -> applyUpdate(existingBook, key, value));
-                    Book updatedBook = bookService.save(existingBook);
-                    logger.info("Book updated successfully: {}", updatedBook);
-                    return ResponseEntity.ok(updatedBook);
-                })
-                .orElseGet(() -> {
-                    logger.warn("Partial update failed - Book with ISBN {} not found.", isbn);
-                    return ResponseEntity.notFound().build();
-                });
+        Book existingBook = bookService.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbn));
+
+        updates.forEach((key, value) -> applyUpdate(existingBook, key, value));
+        Book updatedBook = bookService.save(existingBook);
+        logger.info("Book updated successfully: {}", updatedBook);
+        return ResponseEntity.ok(updatedBook);
     }
+
 
     /**
      * Deletes a book by its ISBN.
@@ -130,17 +118,9 @@ public class BookRestController {
     @DeleteMapping("/books/{isbn}")
     public ResponseEntity<String> deleteBook(@PathVariable int isbn) {
         logger.info("Deleting book with ISBN: {}", isbn);
-        return bookService.findByIsbn(isbn)
-                .map(book -> {
-                    bookService.deleteByIsbn(isbn);
-                    logger.info("Deleted book with ISBN: {}", isbn);
-                    return ResponseEntity.ok("Deleted book with ISBN " + isbn);
-                })
-                .orElseGet(() -> {
-                    logger.warn("Delete operation failed - Book with ISBN {} not found.", isbn);
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Book with ISBN " + isbn + " not found.");
-                });
+        bookService.deleteByIsbn(isbn);
+        logger.info("Deleted book with ISBN: {}", isbn);
+        return ResponseEntity.ok("Deleted book with ISBN " + isbn);
     }
 
     /**
@@ -178,13 +158,12 @@ public class BookRestController {
      */
     @GetMapping("/books/{isbn}/stock")
     public ResponseEntity<String> checkStock(@PathVariable int isbn) {
-        return bookService.findByIsbn(isbn)
-                .map(book -> ResponseEntity.ok("Stock for ISBN " + isbn + ": " + book.getQuantityInStock()))
-                .orElseGet(() -> {
-                    logger.warn("Stock check failed - Book with ISBN {} not found", isbn);
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book with ISBN " + isbn + " not found.");
-                });
+        Book book = bookService.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbn));
+
+        return ResponseEntity.ok("Stock for ISBN " + isbn + ": " + book.getQuantityInStock());
     }
+
 
     /**
      * handling book purchase and reduces stock quantity.
@@ -194,21 +173,18 @@ public class BookRestController {
      */
     @PostMapping("/purchase/{isbn}")
     public ResponseEntity<String> purchaseBook(@PathVariable int isbn, @RequestParam int quantity) {
-        return bookService.findByIsbn(isbn)
-                .map(book -> {
-                    if (book.getQuantityInStock() < quantity) {
-                        logger.warn("Purchase failed - Not enough stock for ISBN {}", isbn);
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body("Insufficient stock for book with ISBN " + isbn);
-                    }
-                    book.setQuantityInStock(book.getQuantityInStock() - quantity);
-                    bookService.save(book);
-                    logger.info("Purchased {} copies of book with ISBN {}", quantity, isbn);
-                    return ResponseEntity.ok("Successfully purchased " + quantity + " copies of ISBN " + isbn);
-                })
-                .orElseGet(() -> {
-                    logger.warn("Purchase failed - Book with ISBN {} not found", isbn);
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book with ISBN " + isbn + " not found.");
-                });
+        Book book = bookService.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbn));
+
+        if (book.getQuantityInStock() < quantity) {
+            logger.warn("Purchase failed - Not enough stock for ISBN {}", isbn);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Insufficient stock for book with ISBN " + isbn);
+        }
+
+        book.setQuantityInStock(book.getQuantityInStock() - quantity);
+        bookService.save(book);
+        logger.info("Purchased {} copies of book with ISBN {}", quantity, isbn);
+        return ResponseEntity.ok("Successfully purchased " + quantity + " copies of ISBN " + isbn);
     }
 }

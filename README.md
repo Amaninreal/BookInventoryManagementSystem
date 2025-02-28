@@ -36,10 +36,10 @@ The **Book Inventory Management API** is a RESTful service that allows users to 
 | DELETE  | `/books/{isbn}`           | Delete a book by ISBN          |
 
 ### 2. **Stock Management**
-| Method | Endpoint                 | Description                      |
-|--------|--------------------------|----------------------------------|
-| POST   | `/books/{isbn}/purchase` | Purchase a book (decrease stock) |
-| GET    | `/books/{isbn}/stock`    | Retrieve a book stock            |
+| Method | Endpoint                               | Description           |
+|--------|----------------------------------------|-----------------------|
+| POST   | `/books/{isbn}/purchase/1?quantity=1 ` | Purchase a book       |
+| GET    | `/books/{isbn}/stock`                  | Retrieve a book stock |
 
 ### 3. **Error Handling**
 - Returns `404 Not Found` if a book does not exist.
