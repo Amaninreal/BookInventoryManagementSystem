@@ -25,12 +25,10 @@ public class BookServiceImpl implements BookService{
 
     // added implementation for find books by isbn id
     @Override
-    public Book findByIsbn(int isbn) {
-        Optional<Book> result = bookRepository.findById(isbn);
-
-        // if not found the books return no such elements exceptions
-        return result.orElseThrow(() -> new NoSuchElementException("Did not find book with ISBN: " + isbn));
+    public Optional<Book> findByIsbn(int isbn) {
+        return bookRepository.findById(isbn);
     }
+
 
     // adding implementation for find books by title
     @Override
@@ -50,7 +48,7 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public void deleteByIsbn(int isbn) {
-
+        bookRepository.deleteById(isbn);
     }
 
 }
