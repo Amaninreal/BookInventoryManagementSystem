@@ -3,10 +3,7 @@ package com.code.springboot.bookinventory.rest;
 import com.code.springboot.bookinventory.entity.Book;
 import com.code.springboot.bookinventory.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -37,6 +34,12 @@ public class BookRestController {
             throw new NoSuchElementException("Book id not found: " + isbnId);
         }
         return theBook;
+    }
+
+    // adding endpoint to get book by title
+    @GetMapping("/books/search")
+    public List<Book> searchBooks(@RequestParam String title) {
+        return bookService.searchByTitle(title);
     }
 
 }
