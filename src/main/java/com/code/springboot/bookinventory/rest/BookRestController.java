@@ -28,7 +28,7 @@ public class BookRestController {
 
     // adding endpoint to get book by isbnId
     @GetMapping("/books/{isbnId}")
-    public Book getBook(@PathVariable String isbnId){
+    public Book getBook(@PathVariable int isbnId){
         Book theBook = bookService.findByIsbn(isbnId);
         if (theBook == null){
             throw new NoSuchElementException("Book id not found: " + isbnId);
@@ -42,4 +42,18 @@ public class BookRestController {
         return bookService.searchByTitle(title);
     }
 
+    /**
+     * Handles HTTP POST requests to add a new book to the inventory.
+     *
+     * @param theBook The book object received in the request body.
+     * @return The saved book with its assigned ISBN.
+     */
+    @PostMapping("/books")
+    public Book addBooks(@RequestBody Book theBook){
+
+        // Ensure ISBN is null to enforce a new book entry instead of updating an existing one
+        theBook.setIsbn(0);
+
+        return bookService.save(theBook);
+    }
 }

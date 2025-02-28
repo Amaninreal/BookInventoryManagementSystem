@@ -5,10 +5,7 @@ import com.code.springboot.bookinventory.entity.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BookServiceImpl implements BookService{
@@ -28,7 +25,7 @@ public class BookServiceImpl implements BookService{
 
     // added implementation for find books by isbn id
     @Override
-    public Book findByIsbn(String isbn) {
+    public Book findByIsbn(int isbn) {
         Optional<Book> result = bookRepository.findById(isbn);
 
         // if not found the books return no such elements exceptions
@@ -44,13 +41,15 @@ public class BookServiceImpl implements BookService{
         return books.isEmpty() ? Collections.emptyList() : books;
     }
 
+    // adding implementation for saving books
     @Override
     public Book save(Book theBook) {
+        // If the book is new (has no ISBN), generate one
         return bookRepository.save(theBook);
     }
 
     @Override
-    public void deleteByIsbn(String isbn) {
+    public void deleteByIsbn(int isbn) {
 
     }
 

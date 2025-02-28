@@ -3,6 +3,7 @@ package com.code.springboot.bookinventory.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name="book")
@@ -10,8 +11,9 @@ public class Book {
 
     // define fields
     @Id
-    @Column(name="isbn", nullable = false, unique = true, length = 13)
-    private String isbn;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="isbn")
+    private int isbn;
 
     @Column(name="title", nullable = false)
     private String title;
@@ -35,7 +37,7 @@ public class Book {
     public Book() {
     }
 
-    public Book(String isbn, String title, String author, String genre, BigDecimal price, int quantityInStock, LocalDate publicationDate) {
+    public Book(int isbn, String title, String author, String genre, BigDecimal price, int quantityInStock, LocalDate publicationDate) {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
@@ -46,11 +48,11 @@ public class Book {
     }
 
     // define getters/setters
-    public String getIsbn() {
+    public Integer getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(String isbn) {
+    public void setIsbn(int isbn) {
         this.isbn = isbn;
     }
 

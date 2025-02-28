@@ -1,0 +1,12 @@
+2025-02-28 14:18:07.793413+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "ISBN CHARACTER VARYING(13)": "'597ccd92-d5f6-4906-946f-35a3305baa9b' (36)"; SQL statement:
+insert into book (author,genre,price,publication_date,quantity_in_stock,title,isbn) values (?,?,?,?,?,?,?) [22001-232]
+2025-02-28 14:18:52.924247+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "ISBN CHARACTER VARYING(13)": "'56a768bd-1724-4a63-8ffe-72cdfed130ce' (36)"; SQL statement:
+insert into book (author,genre,price,publication_date,quantity_in_stock,title,isbn) values (?,?,?,?,?,?,?) [22001-232]
+2025-02-28 14:32:56.408336+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "'9780134685991' (BOOK_COPY_3_0: ""ISBN"" INTEGER NOT NULL)"; SQL statement:
+INSERT INTO "PUBLIC"."BOOK_COPY_3_0"("ISBN", "AUTHOR", "GENRE", "PRICE", "PUBLICATION_DATE", "QUANTITY_IN_STOCK", "TITLE") OVERRIDING SYSTEM VALUE SELECT "ISBN", "AUTHOR", "GENRE", "PRICE", "PUBLICATION_DATE", "QUANTITY_IN_STOCK", "TITLE" FROM "PUBLIC"."BOOK" [22018-232]
+2025-02-28 14:33:40.556213+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+DROP TABLE books [42102-232]
