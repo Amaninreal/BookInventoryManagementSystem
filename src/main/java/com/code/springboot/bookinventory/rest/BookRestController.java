@@ -156,4 +156,36 @@ public class BookRestController {
         }
         logger.info("Updated field '{}' with value '{}'", key, value);
     }
+
+    // Check stock level for a book
+    @GetMapping("/books/{isbn}/stock")
+    public ResponseEntity<String> checkStock(@PathVariable int isbn) {
+        return bookService.findByIsbn(isbn)
+                .map(book -> ResponseEntity.ok("Stock for ISBN " + isbn + ": " + book.getQuantityInStock()))
+                .orElseGet(() -> {
+                    logger.warn("Stock check failed - Book with ISBN {} not found", isbn);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book with ISBN " + isbn + " not found.");
+                });
+    }
+
+    // Purchase a book and reduce stock
+    @PostMapping("/purchase/{isbn}")
+    public ResponseEntity<String> purchaseBook(@PathVariable int isbn, @RequestParam int quantity) {
+        return bookService.findByIsbn(isbn)
+                .map(book -> {
+                    if (book.getQuantityInStock() < quantity) {
+                        logger.warn("Purchase failed - Not enough stock for ISBN {}", isbn);
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Insufficient stock for book with ISBN " + isbn);
+                    }
+                    book.setQuantityInStock(book.getQuantityInStock() - quantity);
+                    bookService.save(book);
+                    logger.info("Purchased {} copies of book with ISBN {}", quantity, isbn);
+                    return ResponseEntity.ok("Successfully purchased " + quantity + " copies of ISBN " + isbn);
+                })
+                .orElseGet(() -> {
+                    logger.warn("Purchase failed - Book with ISBN {} not found", isbn);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book with ISBN " + isbn + " not found.");
+                });
+    }
 }
