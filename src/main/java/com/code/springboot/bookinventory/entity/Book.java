@@ -3,7 +3,6 @@ package com.code.springboot.bookinventory.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Table(name="book")
