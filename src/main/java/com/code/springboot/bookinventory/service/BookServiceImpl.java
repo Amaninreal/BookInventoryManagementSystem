@@ -5,7 +5,10 @@ import com.code.springboot.bookinventory.entity.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class BookServiceImpl implements BookService{
@@ -24,7 +27,8 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public Book findByIsbn(String isbn) {
-        return null;
+        Optional<Book> result = bookRepository.findById(isbn);
+        return result.orElseThrow(() -> new NoSuchElementException("Did not find book with ISBN: " + isbn));
     }
 
     @Override
