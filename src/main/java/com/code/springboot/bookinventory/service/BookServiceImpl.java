@@ -10,7 +10,7 @@ import java.util.*;
 @Service
 public class BookServiceImpl implements BookService{
 
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
     @Autowired
     public BookServiceImpl(BookRepository theBookRepository){
