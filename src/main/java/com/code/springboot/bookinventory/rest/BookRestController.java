@@ -16,22 +16,30 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 public class BookRestController {
+    private final BookService bookService;
 
-    private BookService bookService;
-
-    // inject employee dao layer
+    // adding constructor-based dependency injection of BookService.
     @Autowired
-    public BookRestController(BookService theBookService){
-        bookService = theBookService;
+    public BookRestController(BookService theBookService) {
+        this.bookService = theBookService;
     }
 
-    // adding endpoint "/books" to get list of all books
+    /**
+     * Retrieves a list of all available books.
+     *
+     * @return List of books from the database.
+     */
     @GetMapping("/books")
-    public List<Book> findAll(){
+    public List<Book> findAll() {
         return bookService.findAll();
     }
 
-    // Adding endpoint to get book by ISBN Id
+    /**
+     * Retrieves a book by its ISBN.
+     *
+     * @param isbnId The ISBN of the book to find.
+     * @return ResponseEntity containing the book if found, otherwise 404 Not Found.
+     */
     @GetMapping("/books/{isbnId}")
     public ResponseEntity<Book> getBook(@PathVariable int isbnId) {
         return bookService.findByIsbn(isbnId)
@@ -39,12 +47,16 @@ public class BookRestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // adding endpoint to get book by title
+    /**
+     * Searches for books by title.
+     *
+     * @param title The title or partial title of the book to search.
+     * @return A list of books that match the given title.
+     */
     @GetMapping("/books/search")
     public List<Book> searchBooks(@RequestParam String title) {
         return bookService.searchByTitle(title);
     }
-
     /**
      * handling HTTP POST requests to add a new book to the inventory.
      *
