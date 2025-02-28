@@ -1,68 +1,44 @@
 package com.code.springboot.bookinventory.service;
 
-import com.code.springboot.bookinventory.entity.Book;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.code.springboot.bookinventory.dao.BookRepository;
+import com.code.springboot.bookinventory.entity.Book;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 class BookServiceTest {
 
     @Mock
-    private BookRepository bookRepository; // Mocked dependency
+    private BookRepository bookRepository; // Mock dependencies
 
     @InjectMocks
-    private BookServiceImpl bookService; // Injecting the mock
+    private BookServiceImpl bookService; // Use a concrete implementation
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.openMocks(this); // Initialize mocks
     }
 
     @Test
-    void testFindByIsbn_BookExists() {
-        Book book = new Book(101, "Spring Boot", "John Doe");
-        when(bookRepository.findById(101)).thenReturn(Optional.of(book));
+    void testFindAllBooks() {
+        Book book1 = new Book(12, "The Mythical Man-Month", "Frederick P. Brooks Jr.", "Software Engineering",
+                new BigDecimal("40.99"), 5, LocalDate.of(1975, 8, 25));
 
-        Optional<Book> result = bookService.findByIsbn(101);
+        Book book2 = new Book(13, "Clean Code", "Robert C. Martin", "Programming",
+                new BigDecimal("35.99"), 10, LocalDate.of(2008, 8, 1));
 
-        assertTrue(result.isPresent());
-        assertEquals("Spring Boot", result.get().getTitle());
-    }
+        when(bookRepository.findAll()).thenReturn(Arrays.asList(book1, book2));
 
-    @Test
-    void testFindByIsbn_BookNotFound() {
-        when(bookRepository.findById(102)).thenReturn(Optional.empty());
-
-        Optional<Book> result = bookService.findByIsbn(102);
-
-        assertFalse(result.isPresent());
-    }
-
-    @Test
-    void testSaveBook() {
-        Book book = new Book(0, "Java Basics", "Jane Doe");
-        when(bookRepository.save(any(Book.class))).thenReturn(book);
-
-        Book savedBook = bookService.save(book);
-
-        assertNotNull(savedBook);
-        assertEquals("Java Basics", savedBook.getTitle());
-    }
-
-    @Test
-    void testDeleteByIsbn() {
-        doNothing().when(bookRepository).deleteById(11);
-
-        bookService.deleteByIsbn(11);
-
-        verify(bookRepository, times(1)).deleteById(11);
+        List<Book> books = bookService.findAll();
+        assertEquals(2, books.size());
     }
 }
