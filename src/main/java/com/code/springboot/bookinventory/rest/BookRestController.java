@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/inventory")
@@ -28,6 +27,7 @@ public class BookRestController {
 
     /**
      * Retrieves all books in the inventory.
+     * @return List of books
      */
     @GetMapping("/books")
     public List<Book> findAll() {
@@ -37,6 +37,8 @@ public class BookRestController {
 
     /**
      * Retrieves a book by its ISBN.
+     * @param isbnId ISBN of the book
+     * @return ResponseEntity containing the book or 404 if not found
      */
     @GetMapping("/books/{isbnId}")
     public ResponseEntity<Book> getBook(@PathVariable int isbnId) {
@@ -54,6 +56,8 @@ public class BookRestController {
 
     /**
      * Searches for books by title.
+     * @param title Book title to search
+     * @return List of books matching the title
      */
     @GetMapping("/books/search")
     public List<Book> searchBooks(@RequestParam String title) {
@@ -63,6 +67,8 @@ public class BookRestController {
 
     /**
      * Adds a new book to the inventory.
+     * @param theBook Book object to add
+     * @return ResponseEntity containing the added book
      */
     @PostMapping("/books")
     public ResponseEntity<Book> addBook(@RequestBody Book theBook) {
@@ -74,6 +80,9 @@ public class BookRestController {
 
     /**
      * Updates an existing book by its ISBN.
+     * @param isbn ISBN of the book to update
+     * @param updatedBook Updated book details
+     * @return ResponseEntity containing the updated book
      */
     @PutMapping("/books/{isbn}")
     public ResponseEntity<Book> updateBookById(@PathVariable int isbn, @RequestBody Book updatedBook) {
@@ -92,7 +101,10 @@ public class BookRestController {
     }
 
     /**
-     * Partially updates a book by its ISBN.
+     * partially updates a book by its ISBN.
+     * @param isbn ISBN of the book to update
+     * @param updates Map of fields to update
+     * @return ResponseEntity containing the updated book
      */
     @PatchMapping("/books/{isbn}")
     public ResponseEntity<Book> updateBookPartially(@PathVariable int isbn, @RequestBody Map<String, Object> updates) {
@@ -112,6 +124,8 @@ public class BookRestController {
 
     /**
      * Deletes a book by its ISBN.
+     * @param isbn ISBN of the book to delete
+     * @return ResponseEntity with deletion status
      */
     @DeleteMapping("/books/{isbn}")
     public ResponseEntity<String> deleteBook(@PathVariable int isbn) {
@@ -157,7 +171,11 @@ public class BookRestController {
         logger.info("Updated field '{}' with value '{}'", key, value);
     }
 
-    // Check stock level for a book
+    /**
+     * checking stock level for a book.
+     * @param isbn ISBN of the book
+     * @return ResponseEntity containing stock level or 404 if not found
+     */
     @GetMapping("/books/{isbn}/stock")
     public ResponseEntity<String> checkStock(@PathVariable int isbn) {
         return bookService.findByIsbn(isbn)
@@ -168,7 +186,12 @@ public class BookRestController {
                 });
     }
 
-    // Purchase a book and reduce stock
+    /**
+     * handling book purchase and reduces stock quantity.
+     * @param isbn ISBN of the book
+     * @param quantity Quantity to purchase
+     * @return ResponseEntity with purchase status
+     */
     @PostMapping("/purchase/{isbn}")
     public ResponseEntity<String> purchaseBook(@PathVariable int isbn, @RequestParam int quantity) {
         return bookService.findByIsbn(isbn)
